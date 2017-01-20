@@ -29,6 +29,7 @@ void user_signup()
 {
 	FILE *f1;
 	account *x=malloc(sizeof(account));
+	account *y=malloc(sizeof(account));
 	char temp[30];
 	f1=fopen("name.txt","rb+");
 	printf("Your Name: ");
@@ -37,6 +38,17 @@ void user_signup()
 	fflush(stdin);
 	printf("Enter a UserId(No spaces):");
 	scanf("%s",x->userid);
+	while(!feof(f1))
+	{
+		fread(y,sizeof(account),1,f1);
+		if(strcmp(y->userid,x->userid) == 0)
+		{
+			printf("Username already exists. Please try again.\n");
+			user_signup();
+		}
+	}
+	fclose(f1);
+	f1 = fopen("name.txt","rb+");
 	printf("Password: ");
 	scanf("%s",x->password);
 	printf("Car Number: ");
@@ -52,13 +64,13 @@ void admin_login()
 {
 	FILE *f1;
 	Admin *y=malloc(sizeof(Admin));
-	char tempname[30],temppass[30];
+	char tempname[30],temppass[30],*A;
 	int count=0;
 	printf("Enter Userid:");
 	scanf("%s",tempname);
 	fflush(stdin);
-	printf("Enter Password:");
-	scanf("%s",temppass);
+	A=getpass("Password : ");
+	strcpy(temppass,A);
 	fflush(stdin);
 	f1=fopen("admin.txt","ab+");
 	fseek(f1,0,SEEK_SET);
@@ -73,8 +85,8 @@ void admin_login()
 		}
 		else
 		{
-			printf("Wrong Credentials.\n");
-			break;
+			printf("Wrong Credentials. Try Again.\n");
+			admin_login();
 		}
 	}
 	fclose(f1);
@@ -127,7 +139,10 @@ void user_login()
 		}
 	}
 	if(count == 0)
-		printf("Username or password wrong \n");
+	{
+		printf("Username or password wrong. Try Again.\n");
+		user_login();
+	}
 	else
 	{
 		user_prof(x,f1);
@@ -143,6 +158,7 @@ void user_prof(account *x,FILE *f1)
 	printf("2. Add money to the wallet. \n");
 	printf("3. View last 10 transactions. \n");
 	printf("4. View your profile. \n");
+	printf("5. Logout. \n");
 	scanf("%d",&choice);
 	switch(choice)
 	{
@@ -173,6 +189,10 @@ void user_prof(account *x,FILE *f1)
 		case 4:
 			printf("Name : %s \n",x->name);
 			printf("Car No. : %s \n",x->carno);
+			break;
+
+		case 5:
+			options();
 			break;
 		default:
 			printf("Wrong Choice. \n Press enter to exit.\n");
@@ -251,10 +271,12 @@ void options()
 {
 	int choice,choice1,count=0;
 	char ch;
+	printf("Welcome to Toll Plaza.\n");
 	printf("Choose an alternative: \n");
 	printf("1. Do transaction. \n");
 	printf("2. Login. \n");
 	printf("3. Sign-up. \n");
+	printf("4. Exit. \n");
 	scanf("%d",&choice);
 	switch(choice)
 	{
@@ -282,9 +304,13 @@ void options()
 		case 3:
 			user_signup();
 			break;
+		case 4:
+			return;
+			break;
 		default:
 			printf("Wrong choice.\n Choose Again.\n");
 			options();
+			break;
 	}
 }
 
